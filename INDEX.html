@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>護理職涯DNA 創新探索工具</title>
+    <!-- 載入 Noto Sans TC 與 Google Material 圖示 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #F27A54; /* 暖橙色調 */
+            --primary-hover: #DE6742;
+            --primary-light: #FFF2EE;
+            --text-dark: #2D3748;
+            --text-muted: #718096;
+            --bg-light: #F7FAFC;
+            --card-bg: #FFFFFF;
+            --border-color: #E2E8F0;
+            --error-color: #E53E3E;
+            --radius: 16px;
+            --shadow: 0 10px 25px rgba(242, 122, 84, 0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 640px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 35px 30px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        /* 頂部進度條 */
+        .progress-wrapper {
+            margin-bottom: 30px;
+            display: none;
+        }
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        /* 漸進式視窗切換 */
+        .step-panel {
+            display: none;
+        }
+        .step-panel.active {
+            display: block;
+            animation: slideUp 0.4s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 首頁文案排版 */
+        .main-title {
+            color: var(--primary);
+            font-size: 26px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .intro-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 35px;
+        }
+
+        /* 表單樣式 */
+        .input-group {
+            margin-bottom: 24px;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            transition: var(--transition);
+            background-color: #FAFAFA;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(242, 122, 84, 0.15);
+        }
+
+        /* 情境題卡片 */
+        .quiz-scenario {
+            background-color: var(--bg-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+            font-size: 15px;
+            margin-bottom: 25px;
+            font-weight: 400;
+        }
+        .question-num {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .question-text {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        /* 點選選項樣式 */
+        .options-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .option-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .option-item:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+            transform: translateX(4px);
+        }
+        .option-tag {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .option-item:hover .option-tag {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        .option-content {
+            font-size: 14.5px;
+            color: var(--text-dark);
+            padding-top: 3px;
+        }
+
+        /* 按鈕系統 */
+        .action-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+        .action-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        .back-btn {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        .back-btn:hover {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        /* 友善提示訊息 */
+        .alert-box {
+            color: var(--error-color);
+            background-color: #FFF5F5;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #FED7D7;
+        }
+
+        /* 最終報告視覺排版 */
+        .result-section h2 {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed var(--border-color);
+        }
+        .dna-banner {
+            background: linear-gradient(135deg, #FFF2EE 0%, #FFE6DE 100%);
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .dna-banner span {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .dna-banner h3 {
+            color: var(--primary);
+            font-size: 26px;
+            font-weight: 700;
+        }
+        .report-card {
+            margin-bottom: 28px;
+        }
+        .report-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .report-card blockquote {
+            background-color: var(--bg-light);
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            font-size: 14.5px;
+            color: #4A5568;
+            text-align: justify;
+            border-radius: 0 10px 10px 0;
+            white-space: pre-line;
+        }
+        .bullet-box {
+            background-color: var(--bg-light);
+            padding: 16px 20px;
+            border-radius: 10px;
+            list-style: none;
+        }
+        .bullet-box li {
+            font-size: 14.5px;
+            margin-bottom: 10px;
+        }
+        .bullet-box li:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* 商業推廣轉換區 (CTA) */
+        .conversion-funnel {
+            background-color: var(--primary-light);
+            border: 1px dashed rgba(242, 122, 84, 0.4);
+            padding: 24px;
+            border-radius: 14px;
+            margin: 35px 0 25px 0;
+            text-align: center;
+        }
+        .conversion-funnel p {
+            font-size: 14.5px;
+            color: var(--text-dark);
+            margin-bottom: 18px;
+            text-align: justify;
+        }
+        .funnel-btn {
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            box-shadow: 0 5px 15px rgba(242, 122, 84, 0.25);
+            transition: var(--transition);
+        }
+        .funnel-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* 響應式調整 */
+        @media (max-width: 480px) {
+            .app-container { padding: 25px 20px; }
+            .main-title { font-size: 22px; }
+            .question-text { font-size: 16px; }
+            .option-content { font-size: 13.5px; }
+            .dna-banner h3 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- 頂部進度條 -->
+    <div class="progress-wrapper" id="progressWrapper">
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <!-- 首頁登入區：基本欄位與防呆 -->
+    <div class="step-panel active" id="panelWelcome">
+        <div class="main-title"><i class="fa-solid fa-dna"></i> 護理職涯 DNA 探索工具</div>
+        <p class="intro-text">解密你在臨床積累的隱形天賦，精準定位體制外的命定賽道</p>
+        
+        <div class="input-group">
+            <label for="nickname"><i class="fa-solid fa-signature"></i> 你的暱稱（如何稱呼你）：</label>
+            <input type="text" id="nickname" class="form-control" placeholder="例如：小敏 / 婷婷學姐" autocomplete="off">
+        </div>
+        
+        <div class="input-group">
+            <label for="seniority"><i class="fa-solid fa-user-clock"></i> 目前護理年資：</label>
+            <select id="seniority" class="form-control">
+                <option value="">-- 請選擇你的護理年資 --</option>
+                <option value="學妹">剛畢業 / 新人臨床適應期（1年以下）</option>
+                <option value="在職學姐">臨床中生代（1-3年，天天想登出）</option>
+                <option value="資深學姐">資深骨幹（3-5年，面臨進階卡關）</option>
+                <option value="護理大前輩">臨床活化石（5年以上，大風大浪都見過）</option>
+            </select>
+        </div>
+        
+        <button class="action-btn" onclick="startEvaluation()">開始探索職涯 DNA <i class="fa-solid fa-chevron-right"></i></button>
+        <div class="alert-box" id="welcomeAlert"><i class="fa-solid fa-circle-exclamation"></i> 請完整輸入您的暱稱，並選取正確的護理年資狀態。</div>
+    </div>
+
+    <!-- 題目 Q1 -->
+    <div class="step-panel" id="panelQ1">
+        <div class="question-num">Question 01</div>
+        <div class="question-text">臨床交班情境題</div>
+        <div class="quiz-scenario">情境：當你小夜班接班時，發現上一班學姐留下一堆還沒補的醫囑、家屬還在旁邊大喊點滴沒了。</div>
+        <div class="options-wrapper">
+            <div class="option-item" onclick="recordAnswer(1, 'A')">
+                <div class="option-tag">A</div>
+                <div class="option-content">【實務戰神模式】「嘖，別吵！事情一件一件來。」迅速開啟高效率模式，按輕重緩急迅速解決。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(1, 'B')">
+                <div class="option-tag">B</div>
+                <div class="option-content">【同理照顧模式】先過去安撫情緒激動的家屬，並貼心地對上一班學姐說：「辛苦了，接下來交給我，你快去下班吧。」</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(1, 'C')">
+                <div class="option-tag">C</div>
+                <div class="option-content">【系統優化模式】默默在心裡研究單位的交班流程到底哪裡出漏洞，邊做邊想著應該建立一個防呆機制。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(1, 'D')">
+                <div class="option-tag">D</div>
+                <div class="option-content">【逃離臨床模式】眼神死，內心第 108 次燃起想打開人力銀行看有沒有校護、職護或不用輪班職缺的衝動。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 題目 Q2 -->
+    <div class="step-panel" id="panelQ2">
+        <div class="question-num">Question 02</div>
+        <div class="question-text">應對外部衝突題</div>
+        <div class="quiz-scenario">情境：病房來了一位 VIP 病患，家屬在護理站頤指氣使，一直質疑你的專業，甚至揚言要找院長投訴。</div>
+        <div class="options-wrapper">
+            <div class="option-item" onclick="recordAnswer(2, 'A')">
+                <div class="option-tag">A</div>
+                <div class="option-content">【捍衛專業模式】搬出學理和醫院規定，一字一句專業地「頂回去」，讓對方知道護理專業不可隨便踐踏。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(2, 'B')">
+                <div class="option-tag">B</div>
+                <div class="option-content">【情緒緩衝模式】深呼吸發揮超強同理心：「我知道您很擔心...」先軟化、安撫對方的情緒，再幫他想辦法。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(2, 'C')">
+                <div class="option-tag">C</div>
+                <div class="option-content">【完美防禦模式】默默退回電腦前，把所有護理紀錄、時間點寫得無懈可擊，用完美的證據鏈防範醫療糾紛。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(2, 'D')">
+                <div class="option-tag">D</div>
+                <div class="option-content">【環境撤退模式】內心大喊「夠了！」，好想去一個不需要面對瘋狂家屬、環境與人際關係單純許多的地方。</div>
+            </div>
+        </div>
+        <button class="back-btn" onclick="goPrevious(1)"><i class="fa-solid fa-arrow-left"></i> 回上一題</button>
+    </div>
+
+    <!-- 題目 Q3 -->
+    <div class="step-panel" id="panelQ3">
+        <div class="question-num">Question 03</div>
+        <div class="question-text">面對工作夥伴題</div>
+        <div class="quiz-scenario">情境：你今天帶的學妹又出包（漏打針、紀錄寫錯），眼看堆積如山的工作和快要到下班的時間。</div>
+        <div class="options-wrapper">
+            <div class="option-item" onclick="recordAnswer(3, 'A')">
+                <div class="option-tag">A</div>
+                <div class="option-content">【閃電全包模式】直接把學妹推開：「算了，我來！」以最快速度自己做完，安全下班最重要。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(3, 'B')">
+                <div class="option-tag">B</div>
+                <div class="option-content">【溫柔帶教模式】把學妹拉到旁邊，溫柔但堅定地說：「別慌，我們一起看看哪裡卡住了。」事後還幫她做心理建設。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(3, 'C')">
+                <div class="option-tag">C</div>
+                <div class="option-content">【除錯檢視模式】開始分析學妹卡關的原因，甚至想動手幫單位做一張「防錯查檢表」，覺得是流程設計不夠好。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(3, 'D')">
+                <div class="option-tag">D</div>
+                <div class="option-content">【強烈共鳴模式】心疼學妹之餘，更加確信這環境真的不能待太久，是時候該規劃換賽道了。</div>
+            </div>
+        </div>
+        <button class="back-btn" onclick="goPrevious(2)"><i class="fa-solid fa-arrow-left"></i> 回上一題</button>
+    </div>
+
+    <!-- 題目 Q4 -->
+    <div class="step-panel" id="panelQ4">
+        <div class="question-num">Question 04</div>
+        <div class="question-text">能量充電偏好題</div>
+        <div class="quiz-scenario">情境：辛苦輪班熬了快一個月，終於迎來期待已久的 3 天連休！在連休的第一天，你通常會？</div>
+        <div class="options-wrapper">
+            <div class="option-item" onclick="recordAnswer(4, 'A')">
+                <div class="option-tag">A</div>
+                <div class="option-content">【動態釋壓模式】安排滿滿的戶外行程、聚餐、逛街，要把之前因為輪班沒玩到、沒吃到的全部補回來。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(4, 'B')">
+                <div class="option-tag">B</div>
+                <div class="option-content">【情感連結模式】把時間留給家人、閨蜜或另一半，去一家舒服的咖啡廳聊聊天，幫彼此空虛的心靈好好的充電。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(4, 'C')">
+                <div class="option-tag">C</div>
+                <div class="option-content">【自我投資模式】報名了專業的工作坊、研討會，或是關在家裡看書、研究有興趣的新領域，覺得增進自己最踏實。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(4, 'D')">
+                <div class="option-tag">D</div>
+                <div class="option-content">【離線登出模式】關掉所有的鬧鐘和通訊軟體（特別是單位的 LINE 群組！），拉上窗簾躺在床上徹底與世隔絕。</div>
+            </div>
+        </div>
+        <button class="back-btn" onclick="goPrevious(3)"><i class="fa-solid fa-arrow-left"></i> 回上一題</button>
+    </div>
+
+    <!-- 題目 Q5 -->
+    <div class="step-panel" id="panelQ5">
+        <div class="question-num">Question 05</div>
+        <div class="question-text">五年後理想生活題</div>
+        <div class="quiz-scenario">情境：閉上眼睛想像一下，如果沒有任何經濟和現實的限制，五年後的你，最希望自己處在什麼樣的工作狀態？</div>
+        <div class="options-wrapper">
+            <div class="option-item" onclick="recordAnswer(5, 'A')">
+                <div class="option-tag">A</div>
+                <div class="option-content">【體制核心】成為單位的核心骨幹或阿長，在戰場般的臨床上游刃有餘，享受解決各種疑難雜症的成就感。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(5, 'B')">
+                <div class="option-tag">B</div>
+                <div class="option-content">【深度陪伴】轉任個管師、諮詢師或長照、居家領域，能用一對一、有品質的方式，真正深入去幫助和陪伴需要的人。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(5, 'C')">
+                <div class="option-tag">C</div>
+                <div class="option-content">【跨界影響】在藥廠、醫材大廠、研發部門 or 企業高層，用我的專業知識去優化流程、改善整個醫療或健康環境。</div>
+            </div>
+            <div class="option-item" onclick="recordAnswer(5, 'D')">
+                <div class="option-tag">D</div>
+                <div class="option-content">【自主自由】擁有一份週休二日、見紅就休的規律工作（如校護、職護、醫美），甚至自己創業做個人品牌。</div>
+            </div>
+        </div>
+        <button class="back-btn" onclick="goPrevious(4)"><i class="fa-solid fa-arrow-left"></i> 回上一題</button>
+    </div>
+
+    <!-- 最終輸出結果視窗 -->
+    <div class="step-panel result-section" id="panelResult">
+        <h2><i class="fa-solid fa-square-poll-vertical" style="color: var(--primary);"></i> 專屬職涯診斷報告</h2>
+        
+        <div class="dna-banner">
+            <span id="renderedUserHeader">NURSE CAREER DNA</span>
+            <h3 id="dnaTitle">計算中...</h3>
+        </div>
+
+        <div class="report-card">
+            <h4><i class="fa-regular fa-comment-dots" style="color: var(--primary);"></i> 📌 你的隱藏特質（懂你的臨床真心話）</h4>
+            <blockquote id="dnaTraits">載入中...</blockquote>
+        </div>
+
+        <div class="report-card">
+            <h4><i class="fa-regular fa-compass" style="color: var(--primary);"></i> 🌟 專屬你的職涯光譜推薦</h4>
+            <ul class="bullet-box">
+                <li id="dnaJobs"><strong>精選命定職缺：</strong> </li>
+                <li id="dnaCore"><strong>背後核心優勢：</strong> </li>
+            </ul>
+        </div>
+
+        <div class="report-card">
+            <h4><i class="fa-solid fa-mug-hot" style="color: var(--primary);"></i> 💡 Puni 學姐的暖心職涯建議</h4>
+            <div id="dnaAdvice" style="font-size: 14.5px; text-align: justify; color: #2D3748;">載入中...</div>
+        </div>
+
+        <!-- 行動呼籲轉換 funnel 區塊 -->
+        <div class="conversion-funnel">
+            <p id="funnelText">想知道如何把你的這項 DNA 轉化為實體的職涯籌碼嗎？</p>
+            <a href="https://yourwebsite.com/career-cards" target="_blank" class="funnel-btn">
+                探索護理職涯卡 <i class="fa-solid fa-arrow-right-long"></i>
+            </a>
+        </div>
+        
+        <button class="action-btn style-outline" style="background-color: transparent; color: var(--text-muted); border: 1px solid var(--border-color);" onclick="restartEvaluation()">重新測試 <i class="fa-solid fa-rotate-right"></i></button>
+    </div>
+</div>
+
+<script>
+    // 狀態管理器
+    let state = {
+        name: '',
+        seniority: '',
+        answers: { 1: '', 2: '', 3: '', 4: '', 5: '' }
+    };
+
+    // 啟動測驗與基本資料防呆
+    function startEvaluation() {
+        const nameVal = document.getElementById('nickname').value.trim();
+        const seniorityVal = document.getElementById('seniority').value;
+        const alertBox = document.getElementById('welcomeAlert');
+
+        if (!nameVal || !seniorityVal) {
+            alertBox.style.display = 'flex';
+            return;
+        }
+
+        alertBox.style.display = 'none';
+        state.name = nameVal;
+        state.seniority = seniorityVal;
+
+        document.getElementById('progressWrapper').style.display = 'block';
+        switchPanel(1);
+    }
+
+    // 紀錄答案並順暢切換下一題
+    function recordAnswer(questionId, chosenOption) {
+        state.answers[questionId] = chosenOption;
+        
+        if (questionId < 5) {
+            switchPanel(questionId + 1);
+        } else {
+            processDnaAlgorithm();
+        }
+    }
+
+    // 回到上一題按鈕
+    function goPrevious(targetQuestionId) {
+        switchPanel(targetQuestionId);
+    }
+
+    // 控制視窗顯隱與進度條渲染
+    function switchPanel(panelIndicator) {
+        document.querySelectorAll('.step-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+
+        if (typeof panelIndicator === 'number') {
+            document.getElementById('panelQ' + panelIndicator).classList.add('active');
+            const percent = (panelIndicator / 5) * 100;
+            document.getElementById('progressFill').style.width = percent + '%';
+        } else {
+            document.getElementById(panelIndicator).classList.add('active');
+        }
+    }
+
+    // 核心雙層交叉判定演算法
+    function processDnaAlgorithm() {
+        const ans = state.answers;
+        let score = { A: 0, B: 0, C: 0, D: 0 };
+
+        // 統計 Q1~Q4 基礎特質原型分
+        score[ans[1]]++;
+        score[ans[2]]++;
+        score[ans[3]]++;
+        score[ans[4]]++;
+
+        // Q5 職涯終極心願加權（乘 2）
+        score[ans[5]] += 2;
+
+        // 計算最高分的優勢基礎原型
+        let primaryType = Object.keys(score).reduce((x, y) => score[x] > score[y] ? x : y);
+        const q5 = ans[5];
+        let dnaIndex = 4; // 預設防呆型：幸福生活實踐家
+
+        // 二維交叉定位光譜
+        if (primaryType === 'A') {
+            dnaIndex = (q5 === 'A') ? 1 : ((q5 === 'C') ? 8 : 10);
+        } else if (primaryType === 'B') {
+            dnaIndex = (q5 === 'B') ? 2 : ((q5 === 'D') ? 6 : 7);
+        } else if (primaryType === 'C') {
+            dnaIndex = (q5 === 'C') ? 3 : ((q5 === 'B') ? 9 : 8);
+        } else if (primaryType === 'D') {
+            dnaIndex = (q5 === 'D') ? 4 : ((q5 === 'C') ? 5 : 10);
+        }
+
+        renderDnaReport(dnaIndex);
+    }
+
+    // 渲染符合三條鐵律與翻譯標準的文本庫
+    function renderDnaReport(index) {
+        const library = {
+            1: {
+                title: "【全能臨床戰神】",
+                jobs: "醫學中心急重症單位（ICU / ER）、麻醉護理師（AA）、ECMO 團隊",
+                core: "【瞬時決策力、高效危機處理能力】",
+                traits: `走進小夜班看見留下一地爛攤子，你的第一題反應不是崩潰，而是腎上腺素瞬間拉滿，一秒開啟戰神防禦網！你習慣了這種跟時間賽跑的窒息感，動手速度極快，甚至有時候看學妹手忙腳亂，職醫會直接把她推開大喊「算了，我來！」。
+                別以為這只是單純的臨床脾氣暴躁，站在職涯顧問的視角，這叫作具備頂級的【瞬時決策力、高效危機處理能力】！你擁有在極端混亂的戰場中迅速抓出輕重緩急、建立秩序的硬實力。這種強大的抗壓心智與果斷力，不論留在重症還是跨界到需要高彈性的產業，都是萬中選一的硬核資本！`,
+                advice: `作為一位「${state.seniority}」，你早已在臨床用血淚刷滿了應變經驗值。但學姐想跟你說，戰神也是血肉之軀，別把整間病房的因果業障都往自己一個人身上扛。你的危機處理能量非常珍貴，即使哪天不待在病房，跨足高階臨床協調或醫療器材技術調度，你也絕對是全場的控場核心。`
+            },
+            2: {
+                title: "【溫柔個管軍師】",
+                jobs: "各專科個案管理師、出院準備服務專員、癌症追蹤管理師",
+                core: "【跨團隊資源整合、卓越的情緒緩衝與協調力】",
+                traits: `在喧鬧、冰冷的護理站裡，你最珍貴的天賦，是那份「看見人，而不只是看見疾病」的細細關懷。碰到出包嚇壞的學妹或焦慮到在護理站拍桌大叫的 VIP 家屬，你總能在內心深呼吸完成緩衝，用高超的共情能力把對方的怒火化解於無形。
+                這絕非僅僅是「好脾氣」，翻譯成職涯黑科技，這叫作【跨團隊資源整合、卓越的情緒緩衝與協調力】。你擅長梳理複雜的人際衝突，並將冰冷的醫療處置翻譯成溫暖的日常方案。你在應付繁瑣臨床碎事中累積的協調力，正是高階個案長效管理最核心的軍師特質！`,
+                advice: `臨床「${state.seniority}」的時光，讓你看透了醫病體制內的冷暖與卡關。如果每天發藥打針、寫常規病歷已經讓你的情感燃料快要燒光，想抽離病房真的不用有罪惡感。你那卓越的資源串接與協調特長，值得去到更能一對一深度照顧、看見生命價值的個管領域。`
+            },
+            3: {
+                title: "【跨界研發智囊】",
+                jobs: "藥廠臨床試驗專員（CRA / CRC）、生技大廠產品專員、醫院品管中心（QCC）",
+                core: "【高敏銳防禦性思考、完美證據鏈建構能力】",
+                traits: `你是護理站裡的頂級大腦擔當。當大家都在按部就班瞎忙時，你的手在動，腦子卻已經在解構單位的交班流程到底出了什麼防呆紕漏。面對無理質疑專業的家屬，你不會跟她大吼，而是默默退回電腦前，把所有護理紀錄、時間點寫得無懈可擊，防範任何醫療糾紛。
+                這絕不是過度小心，換成跨界行話，這叫作【高敏銳防禦性思考、完美證據鏈建構能力】！你對邏輯漏洞有極高的警覺性，看見沒效率的體制會很痛苦。你適合跟數據、標準規範和流程優化打交道，喜歡用大腦幫體制找出一套防錯查檢表。`,
+                advice: `以你目前的「${state.seniority}」護理背景，如果天天卡在一般病房進行重複性體力消耗，實在是太浪費這顆神經敏銳的腦袋了。藥廠 CRA、臨床試驗管理或是生醫法規優化，才是能讓你發揮流程排錯天賦、重新獲得智力成就感的新宇宙。`
+            },
+            4: {
+                title: "【幸福生活實踐家】",
+                jobs: "學校護理師（校護）、員工健檢中心護理師、各大專科門診學姐",
+                core: "【高生活調馭能力與健康風險預防意識】",
+                traits: `「學姐，你真的辛苦了。」看到這個結果，代表你的肉體跟靈魂已經對花班、大夜、還有放假時卻狂閃不停的單位 LINE 群組，發出了最強烈的登出警報。你喜歡護理專業，但你更渴望當一個放假可以關掉手機拉上窗簾、徹底與世隔絕的健全正常人。
+                別以為天天想逃離、想準時下班是失去熱情，翻譯成職涯底牌，這叫作具備【高生活調馭能力與健康風險預防意識】。你能在極度失控的環境中，極力追求風險預防與常態化管理。這份在混亂中精準求穩的能力，在規律的門診或校園公共健康體系裡，是極為穩定的核心力量。`,
+                advice: `陪伴你走過「${state.seniority}」的累積，想擺脫輪班、拿回生活主導權完全理直氣壯！校護、健檢或門診，本來就是你運用護理專業換取規律幸福生活的正當賽道。不用為轉職感到恐慌，去擁抱一場能見紅就休的規律職涯吧！`
+            },
+            5: {
+                title: "【企業健康守護者】",
+                jobs: "科技大廠勞工健康服務護理師（職護）、臨場健康服務策略顧問",
+                core: "【高生活調馭能力、企業員工健康風險預防、跨部門溝通】",
+                traits: `你骨子裡自帶一股想跳脫大醫院白色圍牆的獨立精神。每天待在病房看著一樣的疾病常規、看著生病的人，你更渴望走向世界，運用專業去做源頭的健康管理。
+                你擁有優秀的【高生活調馭能力與健康風險預防意識】，能將急性醫療的硬底子知識，翻譯成企業員工最需要的職業安全預防活動。在公司裡，你不會只是一個躲在醫務室幫忙包紮 OK 繃的護理師，而是一位幫跨國企業、科技大廠進行職安規劃、守護高價值產能的臨場健康守護顧問！`,
+                advice: `你目前「${state.seniority}」累積的臨床硬底子，就是你跨界進入科技大廠當職護最強悍的通行證。不需要繼續在病房忍受作息大亂與瘋狂家屬的折磨，商務企業的白領行政規律節奏，能讓你重新找回專業工作者尊嚴與高生活品質。`
+            },
+            6: {
+                title: "【美感細節職人】",
+                jobs: "頂級醫美診所護理師、微整美容諮詢師、抗衰老健康中心管理師",
+                core: "【精準高端顧客體驗優化、細緻美學溝通】",
+                traits: `你對於「美、生活質感、精緻細節」有著異常敏銳的嗅覺。在臨床上，比起應對複雜沉重的急性重症病，你更享受看著人們在你的細緻關懷與專業照料下，一天天變得優雅、重拾自信的過程。
+                當你在面對傲慢家屬或是帶教卡關學妹時，所展現出的精準安撫與完美防禦，實際上被翻譯成了高階的【精準高端顧客體驗優化、細緻美學溝通】！你有能力將冰冷的技術動作，轉化成令人如沐春風的高端照護體驗。`,
+                advice: `在「${state.seniority}」的時光中，你內心追求的可能從來都不是冷酷的醫療數據，而是人對生活品質的極致渴望。醫美或抗衰老產業，能在不改換你護理背景的優勢下，讓你同時賺取對等的體面收入、並擁抱優雅精緻的白領生活。`
+            },
+            7: {
+                title: "【溫慢社區擺渡人】",
+                jobs: "獨立居家護理所（居護）護理師、日照中心負責人、長照社區 A 個管",
+                core: "【在地化跨團隊資源整合、極強基層大眾溝通力】",
+                traits: `你是最具江湖煙火氣、接地氣的溫慢守護者。比起待在滿是醫療儀器叫聲、規矩繁多的醫學中心大院，你的靈魂更渴望真正走入人群、走進尋常百姓家，在最真實的家庭場域裡解決「人的生活難題」。
+                不論是面對挑剔的案主家屬、還是帶教手足無措的基層照顧員，你自帶一股讓人願意相信、願意跟你分享內心的魔力。翻譯成專業籌碼，這叫作【跨團隊資源整合、卓越的情緒緩衝與協調力】。你能在最基層的體系裡，幫長輩調配出最安心的長照大後方。`,
+                advice: `走過臨床「${state.seniority}」的磨練，你已經洞察到台灣高齡社會最迫切的剛性痛點。長照與居家護理市場正在大爆發，你那身接地氣的溝通長才與獨立案源調度實力，能讓你在社區護理新藍海中，建立極具主導權的長遠職涯。`
+            },
+            8: {
+                title: "【高效行政推手】",
+                jobs: "各大專科護理長（阿長）、醫院行政品質部門專員、衛生局公務護理行政官",
+                core: "【大後方高組織動員力、評鑑無瑕疵證據鏈建構、流程風險管理】",
+                traits: `你是天生的團隊定海神針。雖然臨床每班都在瘋狂出包，但你那靈活且條理分明的腦袋，總能一邊在心裡吐槽、一邊手腳利落地把排班、醫囑系統、甚至複雜的查檢表整理得井井有條。
+                當學妹出包時，你一邊快速啟動閃電全包模式幫忙搞定，大腦一邊就已經建構好完整的防錯防漏機制。這就是最硬實的【高敏銳防禦性思考與跨團隊資源整合力】！你有卓越的全局思維，擅長應對複雜體制，在龐大架構中調配人員、規避流程風險。`,
+                advice: `以你累積「${state.seniority}」的厚實底蘊，你的行政組織才華如果只用在天天一線輪班病房裡，真的被大材小用了。往專科護理行政、體制品管、或是公務行政機關進階，能讓你站在更高的視野，用流程與制度去解決根本問題。`
+            },
+            9: {
+                title: "【護理知識傳播者】",
+                jobs: "臨床全職帶教師（HN）、大專院校護理系助教、專業健康衛教講師",
+                core: "【高價值知識白話翻譯、跨世代教學溝通力】",
+                traits: `你的靈魂深處藏著熱愛點亮他人智慧的傳播火種。看著原本懵懂犯錯的學妹、或是驚慌無助的家屬，因為你一段接地氣、充滿生活化比喻的講解而恍然大悟、轉憂為喜時，那種深層的滿足感是你拿到再多加班津貼都無法比擬的。
+                你擅長將生硬、冰冷的學理與醫囑，翻譯成任何人都能一秒聽懂的白話梗。這在職涯能力光譜上，屬於極致的【跨團隊資源整合與高價值知識白話翻譯力】。你是天生的教育引導者，自帶強大的知識說服力！`,
+                advice: `在「${state.seniority}」的歲月中，你的引導與教學天賦不該只被消耗在每天疲於奔命的發藥翻身。臨床專職帶教、健康教材研發或衛教講師領域，能讓你的傳播影響力放大十倍，幫你換取更高的社會敬重與專業尊嚴。`
+            },
+            10: {
+                title: "【自由跨界創業家】",
+                jobs: "健康護理獨立品牌創辦人、職涯策略諮詢師、居家照護工作室負責人",
+                core: "【創新商業思維、瞬時決策、內外三角形全方位職涯主導力】",
+                traits: `你的骨子裡流淌著叛逆、絕對不向官僚僵化體制低頭的自由靈魂！你極度無法忍受醫院裡那些「因為以前都這樣，所以現在也要這樣」的死板常規。不論是跟無理取鬧的 VIP 家屬開戰捍衛底線，還是自己研究新花招優化流程，你都在用行動證明一件事：你具備頂級的【瞬時決策力與高敏銳防禦性思考】。
+                你從不缺乏硬實力，你唯一缺少的，只是一個不用看阿長與督導臉色、完全由你自己說了算的專屬舞台！`,
+                advice: `「${state.seniority}」的臨床淬煉，給了你最真實的醫療痛點敏銳度。既然現有的病房體制無法給你期待的報酬與人生自由，自己出來搭建個人品牌三角形、勇敢跨界創業就是你最酷的下一步！釋放你的叛逆魂，把生命的主導權完完整整拿回手裡。`
+            }
+        };
+
+        const targetDna = library[index] || library[4];
+
+        // 動態渲染文本到 DOM 節點
+        document.getElementById('renderedUserHeader').innerText = `${state.name} 的 NURSE CAREER DNA`;
+        document.getElementById('dnaTitle').innerText = targetDna.title;
+        document.getElementById('dnaTraits').innerText = targetDna.traits;
+        document.getElementById('dnaJobs').innerHTML = `<strong><i class="fa-solid fa-user-doctor" style="color:var(--primary);"></i> 精選命定職缺：</strong> ${targetDna.jobs}`;
+        document.getElementById('dnaCore').innerHTML = `<strong><i class="fa-solid fa-shield-halved" style="color:var(--primary);"></i> 背後核心優勢：</strong> ${targetDna.core}`;
+        document.getElementById('dnaAdvice').innerText = targetDna.advice;
+
+        // 客製化更新 CTA 導購按鈕文字
+        document.getElementById('funnelText').innerHTML = `想知道如何把你的這項 <strong>${targetDna.title}</strong> DNA 轉化為實體的職涯籌碼嗎？Puni 費時 4 年研發的 <strong>『護理職涯卡』</strong> 已正式推出！內含 148 張專屬牌卡，能陪你精準梳理內外三角形，找回你的職涯主導權！👇`;
+
+        document.getElementById('progressWrapper').style.display = 'none';
+        switchPanel('panelResult');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 重置測驗狀態
+    function restartEvaluation() {
+        state.name = '';
+        state.seniority = '';
+        for (let k in state.answers) state.answers[k] = '';
+        
+        document.getElementById('nickname').value = '';
+        document.getElementById('seniority').value = '';
+        
+        switchPanel('panelWelcome');
+    }
+</script>
+
+</body>
+</html>
