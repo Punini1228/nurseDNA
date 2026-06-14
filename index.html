@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>護理職涯DNA 創新探索工具</title>
+    <title>你的護理職涯內建DNA</title>
     <!-- 載入 Noto Sans TC 與 Google Material 圖示 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -377,8 +377,8 @@
 
     <!-- 首頁登入區：基本欄位與防呆 -->
     <div class="step-panel active" id="panelWelcome">
-        <div class="main-title"><i class="fa-solid fa-dna"></i> 護理職涯 DNA 探索工具</div>
-        <p class="intro-text">解密你在臨床積累的隱形天賦，精準定位體制外的命定賽道</p>
+        <div class="main-title"><i class="fa-solid fa-dna"></i> 你的護理職涯內建DNA</div>
+        <p class="intro-text">解密你積累的隱形天賦，精準定位體制外的命定賽道</p>
         
         <div class="input-group">
             <label for="nickname"><i class="fa-solid fa-signature"></i> 你的暱稱（如何稱呼你）：</label>
@@ -389,14 +389,15 @@
             <label for="seniority"><i class="fa-solid fa-user-clock"></i> 目前護理年資：</label>
             <select id="seniority" class="form-control">
                 <option value="">-- 請選擇你的護理年資 --</option>
-                <option value="學妹">剛畢業 / 新人臨床適應期（1年以下）</option>
-                <option value="在職學姐">臨床中生代（1-3年，天天想登出）</option>
-                <option value="資深學姐">資深骨幹（3-5年，面臨進階卡關）</option>
-                <option value="護理大前輩">臨床活化石（5年以上，大風大浪都見過）</option>
+                <option value="護理新鮮人">剛畢業 / 新人臨床適應期（1年以下）</option>
+                <option value="中生代學長姐">中生代（1-3年）</option>
+                <option value="資深學長姐">資深骨幹（3-5年）</option>
+                <option value="護理大前輩">護理大前輩（5-10）</option>
+                <option value="護理界活化石">臨床活化石（10年以上）</option>
             </select>
         </div>
         
-        <button class="action-btn" onclick="startEvaluation()">開始探索職涯 DNA <i class="fa-solid fa-chevron-right"></i></button>
+        <button class="action-btn" onclick="startEvaluation()">開始解鎖我的職涯DNA <i class="fa-solid fa-chevron-right"></i></button>
         <div class="alert-box" id="welcomeAlert"><i class="fa-solid fa-circle-exclamation"></i> 請完整輸入您的暱稱，並選取正確的護理年資狀態。</div>
     </div>
 
